@@ -1,0 +1,284 @@
+---
+title: " STA 32 R Project"
+author: "Ahmed Farooqui & Hammad Zahid"
+
+date: "June 8th, 2018"
+output: html_document
+---
+#Problem 1
+
+``` {r, echo=FALSE}
+
+###Problem 1
+  #(a)
+  norm <- function(x){
+    meanvec <- mean(x)
+    sdvec <- sd(x)
+    returnvec <- (x - meanvec) / sdvec
+    sd(returnvec)
+  }
+  
+  #(b)
+  lowhigh <- function(x){
+    meanvec <- mean(x)
+    sdvec <- sd(x)
+    lower <- meanvec - 2*sdvec
+    higher <- meanvec + 2*sdvec
+    lowerhigher <- list(lower,higher)
+    lowerhigher
+  }
+  
+  #(c)
+  selectivemean <- function(x){
+    sum <- 0
+    size = length(x)
+    meanvec <- mean(x)
+    sdvec <- sd(x)
+   
+    for(i in 1:length(x)){
+      bounds <- (x[i] - meanvec) / sdvec
+      if(bounds > 3 | bounds < -3){
+        size = size - 1
+      }else{
+        sum = sum + x[i]
+         
+      }
+    }
+    
+    meannewvec <- sum / size
+    meannewvec
+  }
+  
+  X <- 1:100
+  ans1 <- norm(X)
+  ans2 <- lowhigh(X)
+  
+  X = c(1:100,200,300)
+  ans3 <- selectivemean(X)
+  
+```
+###(a) 
+The standard deviation of the normalized vector is **`r ans1`**. This function was quite simple; I simply took the vector, subtracted by the mean, divided by the standard deviation, and returned the standard deviation of that result
+
+###(b) 
+Lower bound is **`r ans2[1]`** and the high is **`r ans2[2]`**. This function was also quite simple. I found the mean and standard deviation. I returned a list of the upper and lower bounds.
+
+###(c) 
+The selective mean is **`r ans3`**. For this answer, I looped through every element in the vector, and checked it against the bounds being greater than 3 or less that -3. If true, I would reduce the size of the vector by 1, simulating removing an element from the vector. The else case updates a sum variable, which adds the current element to the sum. After the loop, I returned the mean based on the sum and the modified size. 
+
+#Problem 2
+``` {r, echo = FALSE}
+
+###Problem 2
+  #(a)
+  flip <- function(N){
+    flips <- sample(0:1, N, replace = TRUE)
+    sum(flips==1) / N
+  }
+
+  ans1 = flip(20)
+  
+  #(b)
+  x <- list(10, 100, 1000, 10000, 100000)
+  
+  ans2 <- sapply(x, flip)
+  
+  #(c)
+  error <- function(x){
+    abs(0.5 - head(x))
+  }
+  
+  ans3 <- sapply(ans2, error)
+  
+```
+###(a)
+The probability a "head" is encountered for 20 flips is **`r ans1`**. Using sample, with N flips, I determined the probability by summing all the ones encountered then dividing by the number of trials.   
+
+###(b)
+The probabilities for a coin flip landing "heads" for values from 10, 100, 1000, 100000 is **`r ans2`**. Using sapply on a list x, I yielded probabilities for higher numbers of flips. 
+
+###(c)
+The error is **`r ans3`**. This function returns the absolute value of the difference between 0.5 and the heads of the previous answer.
+
+###(d)
+As the value of N gets bigger, **the error gets smaller**. This makes sense, as increasing the number of flips makes the probability of one side move closer and closer to half, given that the coin flip is fair.  
+
+#Problem 3
+``` {r, echo = FALSE}
+
+###Problem 3
+  values = as.character(1:7)
+
+  #(a)
+  perm <- function(x,numexperiments){
+    replicate(numexperiments,sample(x,length(x),replace = FALSE))
+  }
+  
+  #ans1
+  mat <- perm(values, 7)
+  ans1 <- list(mat[1,1], mat[2,1], mat[3,1], mat[4,1], mat[5,1], mat[6,1], mat[7,1])
+
+  #(b)
+  onethere <- function(x){
+    counter <- 0
+    for(i in 1:100000){
+      if(x[1, i] == 1){
+        counter = counter + 1
+      }
+    }
+    counter
+  }
+  
+  mat2 <- perm(values, 100000)
+  ans2 <- onethere(mat2)
+  
+  #(c)
+  startendthreeseven <- function(x){
+    counter <- 0
+    for(i in 1:100000){
+      if(x[1, i] == 3 & x[7, i] == 7){
+        counter = counter+1
+      }
+    }
+    counter/100000
+  }
+  
+  ans3 <- startendthreeseven(mat2)
+  
+  #(d)
+  uniquecol <- duplicated(t(mat2))
+  mat3 <- mat2[, !uniquecol]
+  size <- ncol(mat3)
+```
+###(a)
+The draw for 7 times on 7 values looks like this: **`r ans1`**. I replicated the sample 7 times. This function returns a matrix with columns that represent each set of 7 draws.
+
+###(b)
+The number of orderings that start with the number 1 is **`r ans2`**. Since the function has two parameters, I can pass in the number of experiments I want to do.
+
+###(c)
+The probability that a random ordering started with a 3 and ended with a 7 is **`r ans3`**. With this function, I looped through every column, and incremented a counter every time the first element was a one. 
+
+###(d)
+The number of unique orderings is **`r size`**. Duplicated returns the rows that are unique. So, taking the transpose of the matrix and calling duplicated should return the columns of the original matrix. Then, referencing the unique columns in the original matrix returns another matrix that I assigned to a temp. Then, I asked for the number of columns in the new matrix.  
+
+#Problem 5
+###(a)
+```{r, echo = F, eval = T}
+
+##PROBLEM 5
+
+##(a)
+crime <- read.csv("crime.csv", header = TRUE)
+
+#Y is the crime rate
+Y = crime$rate
+#X is the number of people with HS diploma per 100,000
+X = crime$dip
+
+plot(X, Y, main="Scatterplot of people with HS Diploma's vs. Crime Rate", 
+  	xlab="% of people with HS Diploma ", ylab="Crime rate per 100,000", pch = 16,col = "blue",grid(nx = NULL, ny = NULL, col = "lightgray", lty = "dotted"))
+
+
+abline(lm(Y ~ X))
+fit <- lm(Y~X)
+```
+
+####Summary statistics for our regression line
+```{r, echo = F, eval = T}
+summary(fit)
+#From Estimate in Intercept row
+β0 = 20517
+#From Estimate in X row
+β1 = -170.58
+#From Residual standard error
+σ = 2356
+
+```
+###(b)
+The algebraic regression line formula is ŷi =βO + β1xi+ε
+Thus from our **summary statistics above**, we can input our values
+and our regression line formula is **ŷi = 20517 + -170.58xi + ε**
+where ε ~ N(0, 2356^2 )
+
+=> From Estimate in Intercept row
+β0 = 20517
+
+=> From Estimate in X row
+β1 = -170.58
+
+=> From Residual standard error
+σ = 2356
+
+###(c)
+The **intercept is 20,517** and the **slope is -170.58x**. This tells us that at the crime 20,517, for each 1% increase of people with HS diplomas, we decrase crime by approximately 170.58 or 171 people.  
+
+###(d) 
+We used the **boxplot method** from the lecture 1 notes **to determine our outliers**. The details are in our code appendix. We did not have any outliers on the higher end of the scatter plot. The result for the LargerOutlier function in our code returned null. However on the lower end of the scatter plot we found there are 6 outliers. This is seen by the output of our SmallOutlier function. The results are as follows:
+
+The **1st column** (6, 20, 39, etc.) is the **row number**, the **2nd column** (9100, 12311, etc. ) is **rate OR Y** and the **3rd column** (66, 65, etc.) is **dip OR X**. We have 6 outliers and they are as follows:
+
+
+####List of Outliers
+```{r, echo = FALSE, eval=TRUE}
+##(d)
+Q1 = quantile(crime$dip, probs = (0.25))
+Q3 = quantile(crime$dip, probs = (0.75))
+IQR= Q3 - Q1
+OutlierBig = Q3 + (1.5*IQR)
+OutlierSmall = Q1 - (1.5*IQR)
+SmallOutlier <- subset(crime, dip < OutlierSmall)
+LargerOutlier <- subset(crime, dip > OutlierBig)
+
+SmallOutlier
+```
+
+###(e)
+```{r, echo = FALSE, eval = TRUE}
+##(e)
+crime.lm = lm(Y~X, data = crime)
+crime.stdres = residuals(crime.lm)
+
+qqnorm(crime.stdres, ylab = "Residuals", xlab = "% of population with HS diploma", main = "QQ plot of residuals", pch = 2, col = "red", )
+qqline(crime.stdres)
+hist(crime.stdres,ylab = "Residuals", xlab = "% of population with HS diploma", main = "Histogram plot of residuals", col = "green")
+
+```
+
+The deviations from the straight line are minimal. This indicates **normal distribution**. We wanted to confirm our results to vindicate that the distribution is normal so we also made a histogram.
+
+###(f) 
+```{r, echo = F, eval = TRUE}
+##(f)
+fit_vals = fitted.values(fit)
+errors = crime.stdres
+plot(fit_vals, errors,main = "Errors vs Fitted Values", pch = 16, col = "purple",grid(nx = NULL, ny = NULL, col = "lightgray", lty = "dotted"))
+regress = lm(errors ~ fit_vals)
+slope = abline(regress)
+
+```
+
+**Yes it appears that the variance in errors in constant**. This is shown by the plotted regression line which is horizontal with no slope.
+
+
+###(g) 
+The following is our 95% confidence interval for the slope. We are 95% confident that the slope falls within **-253.2798 and -87.8706**. This means that for every 1% increase in people with high school diplomas, there is a decrease in crime by between 88 and 253 people. We round the interval to whole numbers because people are discrete values. The interval suggests that **there is a significant linear relationship between X and Y**. This is clear because the **interval excludes 0, therefore we can rule out the liklihood that the slope is 0. Therefore there is a significant linear relationship**.
+
+####95% confidence interval
+```{r, echo=F, eval = T}
+##(g)
+round(confint(fit)[2,],digits = 4)
+
+
+
+
+
+```
+## Appendix Code
+```{r, ref.label=knitr::all_labels(),echo=TRUE,eval=FALSE}
+```
+
+
+
+
+
